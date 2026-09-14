@@ -1612,7 +1612,7 @@
 
       } else if (error?.name === "NotAllowedError") {
         permissionMessage.textContent =
-          "Camera permission was denied. Allow it in your browser site settings, then try again.";
+          "Camera permission was denied or blocked. Open your browser's site settings for this page, set Camera to Allow, then reload and try again.";
 
       } else if (error?.name === "NotFoundError") {
         permissionMessage.textContent =
@@ -1634,6 +1634,65 @@
     }
 
     /*
+      Checked once on load and again right before every request: the
+      browser will only ever show its native Allow/Deny prompt when
+      (a) the page is HTTPS or localhost, (b) the Permissions-Policy
+      for this top-level document allows camera (true by default
+      unless this page itself is embedded in a locked-down iframe),
+      and (c) getUserMedia is actually called from a user gesture,
+      which the button's click handler already guarantees.
+    */
+    function getCameraSupportIssue() {
+      if (!window.isSecureContext) {
+        return
+          "Camera access requires HTTPS or localhost. Open this page from your GitHub Pages URL (or any https:// host, or http://localhost) — not a local file or a plain http:// address.";
+      }
+
+      if (
+        !navigator.mediaDevices ||
+        typeof navigator.mediaDevices.getUserMedia !==
+          "function"
+      ) {
+        return
+          "This browser does not expose camera access on this page. Try the latest Chrome, Edge, or Safari.";
+      }
+
+      if (
+        document.featurePolicy &&
+        typeof document.featurePolicy.allowsFeature ===
+          "function" &&
+        !document.featurePolicy.allowsFeature("camera")
+      ) {
+        return
+          "Camera access is blocked by this page's permissions policy. If this page is embedded in another site or app, open it directly in its own browser tab instead.";
+      }
+
+      return null;
+    }
+
+    function refreshCameraAvailability() {
+      const issue = getCameraSupportIssue();
+
+      if (issue) {
+        allowCameraButton.disabled = true;
+        allowCameraButton.textContent =
+          "Camera Unavailable";
+
+        permissionMessage.textContent = issue;
+
+        statusElement.textContent =
+          "Secure context required";
+
+        statusElement.style.color = "#ffb2be";
+
+        return false;
+      }
+
+      allowCameraButton.disabled = false;
+      return true;
+    }
+
+    /*
       Mirrors the working Laser Dodge startup behavior:
       1. Request the camera directly from the button event.
       2. Await successful video playback.
@@ -1642,12 +1701,23 @@
       5. Load MediaPipe afterward, without awaiting it.
     */
     async function allowCamera() {
+      if (!refreshCameraAvailability()) {
+        return;
+      }
+
       try {
         allowCameraButton.disabled = true;
 
         allowCameraButton.textContent =
           "Requesting Camera…";
 
+        /*
+          This getUserMedia call is what triggers the browser's
+          native Allow/Deny camera dialog. It only fires here,
+          inside a click handler, on a secure (https/localhost)
+          top-level page that has not already been permanently
+          allowed or blocked for this origin.
+        */
         stream =
           await navigator.mediaDevices.getUserMedia({
             audio: false,
@@ -1742,6 +1812,14 @@
       particles.length = 0;
       cursor = null;
 
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+
+        stream = null;
+      }
+
       gameOverPanel.classList.add("hidden");
       permissionPanel.classList.remove("hidden");
 
@@ -1751,7 +1829,7 @@
       allowCameraButton.textContent =
         "Start New Flow";
 
-      allowCameraButton.disabled = false;
+      refreshCameraAvailability();
 
       messageElement.textContent =
         "Settings ready. Start a new Depth Flow run.";
@@ -1803,6 +1881,7 @@
 
     resizeCanvas();
     updateStatus();
+    refreshCameraAvailability();
   </script>
 </body>
 </html>
