@@ -15,8 +15,9 @@
       font-family:
         Inter, ui-sans-serif, system-ui, -apple-system,
         BlinkMacSystemFont, "Segoe UI", sans-serif;
+
       --cyan: #76f5ff;
-      --soft-cyan: #d4fdff;
+      --cyan-soft: #d4fdff;
       --gold: #ffe680;
       --danger: #ff7898;
       --ink: #050b18;
@@ -60,7 +61,7 @@
       object-fit: cover;
       transform: scaleX(-1);
       filter:
-        brightness(0.38)
+        brightness(0.36)
         contrast(1.1)
         saturate(0.78)
         hue-rotate(165deg);
@@ -120,7 +121,7 @@
     }
 
     .hud-card {
-      min-width: 118px;
+      min-width: 120px;
       padding: 9px 11px;
       border: 1px solid rgba(117, 240, 255, 0.3);
       border-radius: 12px;
@@ -166,7 +167,7 @@
       z-index: 5;
       bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
       left: 50%;
-      width: min(calc(100vw - 32px), 600px);
+      width: min(calc(100vw - 32px), 610px);
       padding: 10px 15px;
       border: 1px solid rgba(118, 234, 255, 0.29);
       border-radius: 999px;
@@ -198,7 +199,7 @@
     }
 
     .panel {
-      width: min(100%, 490px);
+      width: min(100%, 500px);
       padding: clamp(22px, 5vw, 30px);
       border: 1px solid rgba(106, 232, 255, 0.3);
       border-radius: 22px;
@@ -237,7 +238,7 @@
 
     .description {
       margin: 0 auto 18px;
-      max-width: 410px;
+      max-width: 420px;
       color: #bdd6e9;
       font-size: 14px;
       line-height: 1.52;
@@ -252,7 +253,7 @@
 
     .setting {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(135px, 0.8fr);
+      grid-template-columns: minmax(0, 1fr) minmax(138px, 0.82fr);
       align-items: center;
       gap: 10px;
       padding: 10px 11px;
@@ -317,7 +318,7 @@
       margin: 13px 0 0;
       color: #91abc4;
       font-size: 11px;
-      line-height: 1.4;
+      line-height: 1.42;
     }
 
     .game-over-score {
@@ -363,8 +364,8 @@
       </div>
 
       <div class="hud-card">
-        <span>TRACKING</span>
-        <div id="tracking">Camera is optional</div>
+        <span>CAMERA MODE</span>
+        <div id="tracking">Tap Allow Camera Mode</div>
       </div>
     </div>
 
@@ -375,7 +376,7 @@
   </section>
 
   <div id="message">
-    Press Start Flow. Hand tracking connects in the background.
+    Start Flow for the visual arena. Camera Mode is available when you want it.
   </div>
 
   <section id="start-screen">
@@ -384,15 +385,14 @@
       <h1>Mobility Hunter</h1>
 
       <p class="description">
-        A continuous visual dodge flow with VR-style depth mimicry.
-        Orbs travel through the arena without wave screens or special
-        VR startup. Hand tracking runs as an optional enhancement and
-        never interrupts the flow.
+        Dodge virtual energy orbs moving through a VR-style depth arena.
+        Start Flow launches the arena immediately. Allow Camera Mode is
+        a separate, phone-friendly option that adds real hand tracking.
       </p>
 
       <div class="settings">
         <div class="setting">
-          <label for="hand-select">Supplemental tracked hand</label>
+          <label for="hand-select">Tracked hand</label>
           <select id="hand-select">
             <option value="Left" selected>Left hand</option>
             <option value="Right">Right hand</option>
@@ -414,12 +414,16 @@
         <button id="start-button" class="primary-button">
           Start Flow
         </button>
+
+        <button id="camera-button" class="secondary-button">
+          Allow Camera Mode
+        </button>
       </div>
 
       <p class="fine-print">
-        No headset, WebXR session, mouse, touchpad, keyboard, or
-        controller is used. Camera tracking needs HTTPS or localhost,
-        but the visual flow starts immediately either way.
+        No headset, WebXR launch, mouse, touchpad, keyboard, or
+        controller is used. Camera Mode needs HTTPS or localhost and
+        activates only when you tap Allow Camera Mode.
       </p>
     </div>
   </section>
@@ -430,8 +434,8 @@
       <h2>Flow Reset</h2>
 
       <p class="description">
-        The depth arena never required tracking to run. This result
-        only reflects contact while a live hand lock was active.
+        The visual arena continues independently. This result only occurs
+        when a live tracked hand overlaps an orb at the foreground plane.
       </p>
 
       <div id="final-score" class="game-over-score">0</div>
@@ -439,6 +443,10 @@
       <div class="button-row">
         <button id="restart-button" class="primary-button">
           Restart Flow
+        </button>
+
+        <button id="camera-button-game-over" class="secondary-button">
+          Allow Camera Mode
         </button>
 
         <button id="menu-button" class="secondary-button">
@@ -464,9 +472,15 @@
     const startScreen = document.querySelector("#start-screen");
     const gameOverScreen = document.querySelector("#game-over-screen");
     const finalScoreElement = document.querySelector("#final-score");
+
     const startButton = document.querySelector("#start-button");
+    const cameraButton = document.querySelector("#camera-button");
+    const cameraButtonGameOver = document.querySelector(
+      "#camera-button-game-over"
+    );
     const restartButton = document.querySelector("#restart-button");
     const menuButton = document.querySelector("#menu-button");
+
     const handSelect = document.querySelector("#hand-select");
     const difficultySelect = document.querySelector("#difficulty-select");
 
@@ -523,21 +537,23 @@
     let lastVideoTime = -1;
     let lastHandDetection = null;
 
-    let gameRunning = false;
     let gameStarted = false;
+    let gameRunning = false;
     let score = 0;
     let flowIndex = 0;
+    let nextProjectileReadyAt = 0;
+    let gameOverTimeoutId = null;
+
     let selectedHand = "Left";
     let selectedDifficulty = "standard";
+
+    let cameraModeActive = false;
+    let cameraConnectionInProgress = false;
+    let trackingInitialized = false;
 
     let cursor = null;
     let smoothedCameraCursor = null;
     let lastCameraSeenAt = 0;
-    let trackingInitialized = false;
-    let cameraStartRequested = false;
-
-    let nextProjectileReadyAt = 0;
-    let gameOverTimeoutId = null;
 
     const projectiles = [];
     const particles = [];
@@ -558,10 +574,17 @@
       return DIFFICULTIES[selectedDifficulty];
     }
 
+    function setCameraButtons(text, disabled) {
+      cameraButton.textContent = text;
+      cameraButton.disabled = disabled;
+
+      cameraButtonGameOver.textContent = text;
+      cameraButtonGameOver.disabled = disabled;
+    }
+
     function project3DToScreen(x, y, z) {
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-
       const clampedZ = Math.max(0, Math.min(1.2, z));
 
       const scale =
@@ -604,8 +627,7 @@
     }
 
     function chooseNextLane() {
-      const base =
-        lanes[flowIndex % lanes.length];
+      const base = lanes[flowIndex % lanes.length];
 
       const variation =
         flowIndex > 6
@@ -644,7 +666,9 @@
 
       if (flowIndex === 1) {
         messageElement.textContent =
-          "Depth Flow active. Tracking connects when available.";
+          cameraModeActive
+            ? "Depth Flow active. Move your tracked hand away from approaching energy."
+            : "Depth Flow active. Tap Allow Camera Mode to add hand tracking.";
       }
     }
 
@@ -678,7 +702,10 @@
         12
       );
 
-      if (cursor?.trackingState === "locked") {
+      if (
+        cameraModeActive &&
+        cursor?.trackingState === "locked"
+      ) {
         score += 1;
         scoreElement.textContent = score;
 
@@ -686,9 +713,12 @@
           score % 10 === 0
             ? `Tracked-flow milestone: ${score} clean dodges.`
             : "Clean tracked dodge. Flow continues.";
+      } else if (cameraModeActive) {
+        messageElement.textContent =
+          "Visual pass complete. Reacquire your selected hand when ready.";
       } else {
         messageElement.textContent =
-          "Visual pass complete. Tracking remains optional.";
+          "Visual pass complete. Camera Mode remains optional.";
       }
     }
 
@@ -736,6 +766,7 @@
 
     function updateCameraTracking(timestamp) {
       if (
+        !cameraModeActive ||
         !handLandmarker ||
         video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
         video.currentTime === lastVideoTime
@@ -781,6 +812,10 @@
     }
 
     function getCameraCursor(timestamp) {
+      if (!cameraModeActive) {
+        return null;
+      }
+
       const handIndex = findRequestedHandIndex();
 
       if (handIndex === -1) {
@@ -858,9 +893,16 @@
       handName = "",
       confidence = 0
     ) {
+      if (!cameraModeActive) {
+        trackingElement.textContent =
+          "Tap Allow Camera Mode";
+        trackingElement.style.color = "#c8dded";
+        return;
+      }
+
       if (!trackingInitialized) {
         trackingElement.textContent =
-          "Camera loading in background";
+          "Camera initializing…";
         trackingElement.style.color = "#c8dded";
         return;
       }
@@ -872,7 +914,7 @@
             : `your ${selectedHand.toLowerCase()} hand`;
 
         trackingElement.textContent =
-          `Optional: show ${handText}`;
+          `Show ${handText}`;
 
         trackingElement.style.color = "#ffcf91";
         return;
@@ -887,6 +929,7 @@
     function checkTrackedCollisions(player, timestamp) {
       if (
         !gameRunning ||
+        !cameraModeActive ||
         !player ||
         player.trackingState !== "locked"
       ) {
@@ -1394,13 +1437,21 @@
       lastFrameTimestamp = timestamp;
 
       if (gameStarted) {
-        updateCameraTracking(timestamp);
-        cursor = getCameraCursor(timestamp);
+        if (cameraModeActive) {
+          updateCameraTracking(timestamp);
+          cursor = getCameraCursor(timestamp);
+        } else {
+          cursor = null;
+          updateTrackingLabel(false);
+        }
 
         if (gameRunning) {
           updateFlowDirector(timestamp);
           updateProjectiles(deltaMs, timestamp);
-          checkTrackedCollisions(cursor, timestamp);
+
+          if (cameraModeActive) {
+            checkTrackedCollisions(cursor, timestamp);
+          }
         }
       }
 
@@ -1456,10 +1507,20 @@
       video.style.display = "block";
     }
 
-    async function connectTrackingInBackground() {
-      if (cameraStartRequested) return;
+    async function enableCameraMode() {
+      if (
+        cameraModeActive ||
+        cameraConnectionInProgress
+      ) {
+        return;
+      }
 
-      cameraStartRequested = true;
+      cameraConnectionInProgress = true;
+
+      setCameraButtons("Opening Camera…", true);
+
+      messageElement.textContent =
+        "Requesting camera permission for hand tracking…";
 
       try {
         try {
@@ -1467,7 +1528,7 @@
             await createHandLandmarker("GPU");
         } catch (gpuError) {
           console.warn(
-            "GPU tracking unavailable; using CPU tracking.",
+            "GPU tracking unavailable; trying CPU.",
             gpuError
           );
 
@@ -1480,23 +1541,30 @@
         await startCamera();
 
         trackingInitialized = true;
+        cameraModeActive = true;
 
-        if (gameRunning) {
-          messageElement.textContent =
-            "Camera connected. Tracking is ready when your hand enters view.";
-        }
+        setCameraButtons("Camera Mode Active", true);
+
+        messageElement.textContent =
+          "Camera Mode active. Show your selected hand whenever you are ready.";
       } catch (error) {
-        console.warn(
-          "Supplemental hand tracking unavailable.",
-          error
-        );
+        console.warn("Camera Mode could not start.", error);
+
+        handLandmarker?.close?.();
+        handLandmarker = null;
 
         trackingInitialized = false;
+        cameraModeActive = false;
 
-        if (gameRunning) {
-          messageElement.textContent =
-            "Depth Flow continues. Supplemental camera tracking is unavailable.";
-        }
+        setCameraButtons(
+          "Try Allowing Camera Again",
+          false
+        );
+
+        messageElement.textContent =
+          "Camera access was not enabled. Depth Flow continues. Allow access in your browser and use HTTPS or localhost to try again.";
+      } finally {
+        cameraConnectionInProgress = false;
       }
     }
 
@@ -1520,9 +1588,9 @@
       gameOverScreen.classList.add("hidden");
 
       messageElement.textContent =
-        "Depth Flow active. Tracking connects in the background.";
-
-      connectTrackingInBackground();
+        cameraModeActive
+          ? "Depth Flow active. Hand tracking is ready."
+          : "Depth Flow active. Tap Allow Camera Mode whenever you want tracking.";
 
       window.setTimeout(() => {
         startButton.disabled = false;
@@ -1543,7 +1611,9 @@
       nextProjectileReadyAt = now + 620;
 
       messageElement.textContent =
-        "Flow restarted. The next orb is forming in the distance.";
+        cameraModeActive
+          ? "Flow restarted. Keep your tracked hand clear."
+          : "Flow restarted. Camera Mode remains available.";
     }
 
     function returnToMenu() {
@@ -1558,12 +1628,29 @@
       startScreen.classList.remove("hidden");
 
       messageElement.textContent =
-        "Press Start Flow. Hand tracking connects in the background.";
+        cameraModeActive
+          ? "Camera Mode remains active. Press Start Flow when ready."
+          : "Start Flow for the visual arena. Camera Mode is optional.";
     }
 
     startButton.addEventListener("click", beginFlow);
+    cameraButton.addEventListener("click", enableCameraMode);
+    cameraButtonGameOver.addEventListener(
+      "click",
+      enableCameraMode
+    );
     restartButton.addEventListener("click", restartFlow);
     menuButton.addEventListener("click", returnToMenu);
+
+    handSelect.addEventListener("change", () => {
+      selectedHand = handSelect.value;
+      smoothedCameraCursor = null;
+      lastCameraSeenAt = 0;
+    });
+
+    difficultySelect.addEventListener("change", () => {
+      selectedDifficulty = difficultySelect.value;
+    });
 
     window.addEventListener("resize", resizeCanvas);
 
