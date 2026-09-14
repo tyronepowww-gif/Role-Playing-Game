@@ -440,11 +440,20 @@
     </div>
   </section>
 
-  <script type="module">
-    import {
-      HandLandmarker,
-      FilesetResolver
-    } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22";
+  <script>
+    (() => {
+    /*
+      HandLandmarker/FilesetResolver are loaded with a dynamic import()
+      later, only inside createHandTracker() — not as a static top-level
+      import here. A static import is resolved before ANY of this
+      script's code runs, including the addEventListener calls at the
+      bottom; if that fetch is slow, blocked, or fails, the whole
+      script never executes and the Allow-Camera button does nothing.
+      Laser Dodge avoids this by loading TensorFlow via classic <script
+      src> tags and only checking window.tf/window.bodySegmentation
+      inside loadSegmenter(), after the camera is already running. This
+      does the same thing for the MediaPipe import.
+    */
 
     const video = document.querySelector("#video");
     const canvas = document.querySelector("#canvas");
@@ -1524,6 +1533,17 @@
     }
 
     async function createHandTracker(delegate) {
+      /*
+        Loaded here, on demand, well after the camera prompt has
+        already resolved and the game loop is already running — a
+        failure here only disables hand tracking (caught by the
+        try/catch in loadTrackingInBackground), it can never stop the
+        camera prompt or the button from working.
+      */
+      const { HandLandmarker, FilesetResolver } = await import(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22"
+      );
+
       const vision =
         await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
@@ -1882,6 +1902,7 @@
     resizeCanvas();
     updateStatus();
     refreshCameraAvailability();
+    })();
   </script>
 </body>
 </html>
