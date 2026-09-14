@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"
   />
   <meta name="theme-color" content="#050b18" />
   <title>Mobility Hunter — Depth Flow</title>
@@ -13,14 +13,7 @@
     :root {
       color-scheme: dark;
       font-family:
-        Inter, ui-sans-serif, system-ui, -apple-system,
-        BlinkMacSystemFont, "Segoe UI", sans-serif;
-
-      --cyan: #76f5ff;
-      --cyan-soft: #d4fdff;
-      --gold: #ffe680;
-      --danger: #ff7898;
-      --ink: #050b18;
+        Arial, Helvetica, sans-serif;
     }
 
     * {
@@ -31,20 +24,14 @@
     html,
     body {
       width: 100%;
-      min-height: 100%;
+      height: 100%;
       margin: 0;
       overflow: hidden;
-      background: var(--ink);
+      background: #050b18;
     }
 
     body {
       min-height: 100dvh;
-      touch-action: none;
-    }
-
-    button,
-    select {
-      font: inherit;
     }
 
     #video,
@@ -57,13 +44,14 @@
 
     #video {
       z-index: 1;
-      display: none;
       object-fit: cover;
       transform: scaleX(-1);
+      opacity: 0.36;
+      background: #000;
       filter:
-        brightness(0.36)
-        contrast(1.1)
-        saturate(0.78)
+        brightness(0.72)
+        contrast(1.08)
+        saturate(0.85)
         hue-rotate(165deg);
     }
 
@@ -81,7 +69,7 @@
     }
 
     .scanlines {
-      opacity: 0.32;
+      opacity: 0.28;
       background:
         repeating-linear-gradient(
           to bottom,
@@ -96,8 +84,8 @@
       background:
         radial-gradient(
           ellipse at center,
-          transparent 35%,
-          rgba(0, 0, 0, 0.18) 70%,
+          transparent 30%,
+          rgba(0, 0, 0, 0.2) 70%,
           rgba(0, 0, 0, 0.78) 100%
         );
     }
@@ -105,13 +93,13 @@
     #hud {
       position: fixed;
       z-index: 5;
-      top: max(14px, env(safe-area-inset-top));
-      left: 14px;
-      right: 14px;
+      top: max(12px, env(safe-area-inset-top));
+      left: 12px;
+      right: 12px;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       pointer-events: none;
     }
 
@@ -120,42 +108,45 @@
       gap: 8px;
     }
 
-    .hud-card {
-      min-width: 120px;
+    .hud-item {
+      min-width: 116px;
       padding: 9px 11px;
-      border: 1px solid rgba(117, 240, 255, 0.3);
-      border-radius: 12px;
-      background: rgba(2, 13, 35, 0.73);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(114, 239, 255, 0.28);
+      border-radius: 10px;
+      background: rgba(1, 12, 31, 0.76);
+      color: #f3ffff;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.26);
       backdrop-filter: blur(10px);
     }
 
-    .hud-card span {
+    .hud-label {
       display: block;
-      color: #91f0ff;
+      color: #8ceeff;
       font-size: 9px;
       font-weight: 900;
       letter-spacing: 0.13em;
     }
 
-    .hud-card strong {
+    .hud-value {
       display: block;
-      margin-top: 2px;
+      margin-top: 3px;
       color: #f3ffff;
-      font-size: 26px;
+      font-size: 24px;
+      font-weight: 900;
       line-height: 1;
     }
 
-    #tracking {
+    #status {
       display: block;
       margin-top: 4px;
-      color: #d3edf9;
+      color: #d2edf9;
       font-size: 11px;
       font-weight: 800;
+      line-height: 1.25;
     }
 
-    #mode-label {
-      color: #dcfcff;
+    #mode {
+      color: #dffcff;
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.08em;
@@ -165,11 +156,11 @@
     #message {
       position: fixed;
       z-index: 5;
-      bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+      bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
       left: 50%;
-      width: min(calc(100vw - 32px), 610px);
+      width: min(calc(100vw - 32px), 620px);
       padding: 10px 15px;
-      border: 1px solid rgba(118, 234, 255, 0.29);
+      border: 1px solid rgba(118, 234, 255, 0.28);
       border-radius: 999px;
       background: rgba(2, 13, 35, 0.82);
       color: #efffff;
@@ -178,44 +169,45 @@
       line-height: 1.35;
       text-align: center;
       transform: translateX(-50%);
-      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.32);
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(12px);
     }
 
-    #start-screen,
-    #game-over-screen {
+    #permission-panel,
+    #game-over-panel {
       position: fixed;
       z-index: 10;
       inset: 0;
       display: grid;
       place-items: center;
-      padding: 18px;
-      background: rgba(1, 6, 18, 0.58);
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(7px);
     }
 
-    #game-over-screen {
+    #game-over-panel {
       z-index: 11;
     }
 
-    .panel {
-      width: min(100%, 500px);
-      padding: clamp(22px, 5vw, 30px);
-      border: 1px solid rgba(106, 232, 255, 0.3);
-      border-radius: 22px;
+    .panel-card {
+      width: min(100%, 460px);
+      padding: clamp(23px, 6vw, 30px);
+      border: 1px solid rgba(109, 234, 255, 0.3);
+      border-radius: 20px;
       background:
         linear-gradient(
-          150deg,
-          rgba(18, 63, 107, 0.97),
-          rgba(3, 10, 29, 0.98)
+          145deg,
+          rgba(17, 63, 107, 0.97),
+          rgba(3, 10, 30, 0.98)
         );
       box-shadow: 0 28px 90px rgba(0, 0, 0, 0.72);
+      color: #f3ffff;
       text-align: center;
     }
 
     .eyebrow {
       margin: 0;
-      color: var(--cyan);
+      color: #83f0ff;
       font-size: 10px;
       font-weight: 900;
       letter-spacing: 0.16em;
@@ -224,7 +216,7 @@
     h1,
     h2 {
       margin: 9px 0 10px;
-      color: #f4ffff;
+      color: #f3ffff;
       letter-spacing: -0.05em;
     }
 
@@ -233,37 +225,37 @@
     }
 
     h2 {
-      font-size: clamp(30px, 8vw, 42px);
+      font-size: clamp(31px, 9vw, 44px);
     }
 
-    .description {
+    .panel-copy {
       margin: 0 auto 18px;
-      max-width: 420px;
-      color: #bdd6e9;
+      max-width: 400px;
+      color: #bdd7e9;
       font-size: 14px;
       line-height: 1.52;
     }
 
-    .settings {
+    .setting-list {
       display: grid;
-      gap: 11px;
+      gap: 10px;
       margin: 18px 0;
       text-align: left;
     }
 
     .setting {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(138px, 0.82fr);
+      grid-template-columns: minmax(0, 1fr) 142px;
       align-items: center;
       gap: 10px;
       padding: 10px 11px;
       border: 1px solid rgba(125, 234, 255, 0.16);
-      border-radius: 12px;
-      background: rgba(1, 12, 31, 0.44);
+      border-radius: 11px;
+      background: rgba(2, 13, 34, 0.52);
     }
 
     .setting label {
-      color: #dffcff;
+      color: #e4fcff;
       font-size: 12px;
       font-weight: 800;
     }
@@ -271,10 +263,10 @@
     select {
       width: 100%;
       padding: 8px 9px;
-      border: 1px solid rgba(117, 239, 255, 0.3);
-      border-radius: 9px;
+      border: 1px solid rgba(118, 238, 255, 0.28);
+      border-radius: 8px;
       outline: 0;
-      background: rgba(6, 26, 55, 0.92);
+      background: rgba(5, 27, 58, 0.95);
       color: #efffff;
       font-size: 12px;
       font-weight: 800;
@@ -285,28 +277,28 @@
       gap: 10px;
     }
 
-    .primary-button,
-    .secondary-button {
+    button {
       width: 100%;
       min-height: 48px;
       border: 0;
       border-radius: 12px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing: 0.03em;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
     }
 
-    .primary-button {
-      background: linear-gradient(135deg, #51efd9, #69a7ff);
-      color: #041323;
-      box-shadow: 0 10px 28px rgba(74, 213, 255, 0.27);
+    #allow-camera,
+    #restart {
+      background: linear-gradient(135deg, #4df0dc, #62a9ff);
+      color: #041423;
+      box-shadow: 0 10px 28px rgba(72, 213, 255, 0.27);
     }
 
-    .secondary-button {
-      border: 1px solid rgba(112, 236, 255, 0.28);
-      background: rgba(10, 39, 77, 0.75);
-      color: #eaffff;
+    #change-settings {
+      border: 1px solid rgba(115, 238, 255, 0.27);
+      background: rgba(10, 39, 77, 0.8);
+      color: #efffff;
     }
 
     button:disabled {
@@ -316,15 +308,15 @@
 
     .fine-print {
       margin: 13px 0 0;
-      color: #91abc4;
+      color: #96afc7;
       font-size: 11px;
       line-height: 1.42;
     }
 
-    .game-over-score {
+    #final-score {
       margin: 12px 0 18px;
-      color: var(--gold);
-      font-size: 48px;
+      color: #ffe27c;
+      font-size: 50px;
       font-weight: 950;
       line-height: 1;
     }
@@ -333,17 +325,17 @@
       display: none !important;
     }
 
-    @media (max-width: 430px) {
+    @media (max-width: 420px) {
       .setting {
         grid-template-columns: 1fr;
       }
 
-      .hud-card {
-        min-width: 100px;
+      .hud-item {
+        min-width: 102px;
       }
 
-      #mode-label {
-        max-width: 136px;
+      #mode {
+        max-width: 126px;
       }
     }
   </style>
@@ -358,39 +350,39 @@
 
   <section id="hud" aria-live="polite">
     <div class="hud-group">
-      <div class="hud-card">
-        <span>TRACKED DODGES</span>
-        <strong id="score">0</strong>
+      <div class="hud-item">
+        <span class="hud-label">TRACKED DODGES</span>
+        <strong id="score" class="hud-value">0</strong>
       </div>
 
-      <div class="hud-card">
-        <span>CAMERA MODE</span>
-        <div id="tracking">Tap Allow Camera Mode</div>
+      <div class="hud-item">
+        <span class="hud-label">HAND TRACKING</span>
+        <span id="status">Camera required</span>
       </div>
     </div>
 
-    <div class="hud-card">
-      <span>MODE</span>
-      <div id="mode-label">DEPTH FLOW</div>
+    <div class="hud-item">
+      <span class="hud-label">MODE</span>
+      <span id="mode">DEPTH FLOW</span>
     </div>
   </section>
 
   <div id="message">
-    Start Flow for the visual arena. Camera Mode is available when you want it.
+    Allow camera access to start Depth Flow.
   </div>
 
-  <section id="start-screen">
-    <div class="panel">
-      <p class="eyebrow">CONTINUOUS FLOW • DEPTH ARENA</p>
+  <section id="permission-panel">
+    <div class="panel-card">
+      <p class="eyebrow">CAMERA MOTION GAME • DEPTH ARENA</p>
       <h1>Mobility Hunter</h1>
 
-      <p class="description">
-        Dodge virtual energy orbs moving through a VR-style depth arena.
-        Start Flow launches the arena immediately. Allow Camera Mode is
-        a separate, phone-friendly option that adds real hand tracking.
+      <p id="permission-message" class="panel-copy">
+        Allow camera access to begin. The depth arena and energy orbs
+        start immediately after your camera opens. Hand tracking loads
+        afterward and only controls collision and tracked-dodge scoring.
       </p>
 
-      <div class="settings">
+      <div class="setting-list">
         <div class="setting">
           <label for="hand-select">Tracked hand</label>
           <select id="hand-select">
@@ -411,45 +403,37 @@
       </div>
 
       <div class="button-row">
-        <button id="start-button" class="primary-button">
-          Start Flow
-        </button>
-
-        <button id="camera-button" class="secondary-button">
-          Allow Camera Mode
+        <button id="allow-camera" type="button">
+          Allow Camera &amp; Start Flow
         </button>
       </div>
 
       <p class="fine-print">
-        No headset, WebXR launch, mouse, touchpad, keyboard, or
-        controller is used. Camera Mode needs HTTPS or localhost and
-        activates only when you tap Allow Camera Mode.
+        Camera access requires HTTPS or localhost. No headset, mouse,
+        touchpad, keyboard, controller, WebXR mode, or separate VR
+        start is used.
       </p>
     </div>
   </section>
 
-  <section id="game-over-screen" class="hidden">
-    <div class="panel">
-      <p class="eyebrow">TRACKED CONTACT</p>
-      <h2>Flow Reset</h2>
+  <section id="game-over-panel" class="hidden">
+    <div class="panel-card">
+      <p class="eyebrow">TRACKED ORB CONTACT</p>
+      <h2>Flow Interrupted</h2>
 
-      <p class="description">
-        The visual arena continues independently. This result only occurs
-        when a live tracked hand overlaps an orb at the foreground plane.
+      <p class="panel-copy">
+        Your selected hand overlapped an orb in the foreground
+        interaction plane while tracking was live.
       </p>
 
-      <div id="final-score" class="game-over-score">0</div>
+      <div id="final-score">0</div>
 
       <div class="button-row">
-        <button id="restart-button" class="primary-button">
+        <button id="restart" type="button">
           Restart Flow
         </button>
 
-        <button id="camera-button-game-over" class="secondary-button">
-          Allow Camera Mode
-        </button>
-
-        <button id="menu-button" class="secondary-button">
+        <button id="change-settings" type="button">
           Change Settings
         </button>
       </div>
@@ -467,32 +451,48 @@
     const ctx = canvas.getContext("2d");
 
     const scoreElement = document.querySelector("#score");
-    const trackingElement = document.querySelector("#tracking");
+    const statusElement = document.querySelector("#status");
     const messageElement = document.querySelector("#message");
-    const startScreen = document.querySelector("#start-screen");
-    const gameOverScreen = document.querySelector("#game-over-screen");
-    const finalScoreElement = document.querySelector("#final-score");
 
-    const startButton = document.querySelector("#start-button");
-    const cameraButton = document.querySelector("#camera-button");
-    const cameraButtonGameOver = document.querySelector(
-      "#camera-button-game-over"
+    const permissionPanel = document.querySelector(
+      "#permission-panel"
     );
-    const restartButton = document.querySelector("#restart-button");
-    const menuButton = document.querySelector("#menu-button");
+
+    const permissionMessage = document.querySelector(
+      "#permission-message"
+    );
+
+    const gameOverPanel = document.querySelector(
+      "#game-over-panel"
+    );
+
+    const finalScoreElement = document.querySelector(
+      "#final-score"
+    );
+
+    const allowCameraButton = document.querySelector(
+      "#allow-camera"
+    );
+
+    const restartButton = document.querySelector("#restart");
+    const changeSettingsButton = document.querySelector(
+      "#change-settings"
+    );
 
     const handSelect = document.querySelector("#hand-select");
-    const difficultySelect = document.querySelector("#difficulty-select");
+    const difficultySelect = document.querySelector(
+      "#difficulty-select"
+    );
 
     const INDEX_FINGER_TIP = 8;
-    const PROJECTILE_BASE_RADIUS = 30;
+    const PROJECTILE_RADIUS = 30;
 
     const DEPTH = {
+      farScale: 0.1,
+      nearScale: 1.14,
       interactionStart: 0.78,
       interactionEnd: 1.06,
-      passZ: 1.2,
-      farScale: 0.1,
-      nearScale: 1.14
+      passZ: 1.2
     };
 
     const DIFFICULTIES = {
@@ -503,6 +503,7 @@
         collisionGraceMs: 175,
         speedGrowth: 0.02
       },
+
       standard: {
         zSpeed: 0.205,
         recoveryMs: 880,
@@ -510,6 +511,7 @@
         collisionGraceMs: 140,
         speedGrowth: 0.028
       },
+
       fast: {
         zSpeed: 0.255,
         recoveryMs: 690,
@@ -531,29 +533,30 @@
       { x: 0.50, y: 0.50 }
     ];
 
+    let stream = null;
     let handLandmarker = null;
+
+    let running = false;
+    let gameOver = false;
+
+    let trackingLoading = false;
+    let trackingReady = false;
+    let lastHandDetection = null;
+    let lastVideoTime = -1;
+
     let animationFrameId = null;
     let lastFrameTimestamp = 0;
-    let lastVideoTime = -1;
-    let lastHandDetection = null;
 
-    let gameStarted = false;
-    let gameRunning = false;
     let score = 0;
     let flowIndex = 0;
     let nextProjectileReadyAt = 0;
-    let gameOverTimeoutId = null;
 
     let selectedHand = "Left";
     let selectedDifficulty = "standard";
 
-    let cameraModeActive = false;
-    let cameraConnectionInProgress = false;
-    let trackingInitialized = false;
-
     let cursor = null;
-    let smoothedCameraCursor = null;
-    let lastCameraSeenAt = 0;
+    let smoothedCursor = null;
+    let lastLiveHandAt = 0;
 
     const projectiles = [];
     const particles = [];
@@ -574,22 +577,74 @@
       return DIFFICULTIES[selectedDifficulty];
     }
 
-    function setCameraButtons(text, disabled) {
-      cameraButton.textContent = text;
-      cameraButton.disabled = disabled;
+    function updateStatus() {
+      if (gameOver) {
+        statusElement.textContent = "Flow paused";
+        statusElement.style.color = "#ffb2be";
+        return;
+      }
 
-      cameraButtonGameOver.textContent = text;
-      cameraButtonGameOver.disabled = disabled;
+      if (!trackingLoading && !trackingReady) {
+        statusElement.textContent = "Loading hand tracking…";
+        statusElement.style.color = "#cfe4f3";
+        return;
+      }
+
+      if (trackingLoading) {
+        statusElement.textContent = "Loading hand tracking…";
+        statusElement.style.color = "#cfe4f3";
+        return;
+      }
+
+      if (!cursor) {
+        const requiredHand =
+          selectedHand === "Either"
+            ? "a hand"
+            : `your ${selectedHand.toLowerCase()} hand`;
+
+        statusElement.textContent =
+          `Show ${requiredHand}`;
+
+        statusElement.style.color = "#ffcf91";
+        return;
+      }
+
+      if (cursor.trackingState === "grace") {
+        statusElement.textContent = "Reacquiring hand…";
+        statusElement.style.color = "#ffcf91";
+        return;
+      }
+
+      statusElement.textContent = "Hand lock active";
+      statusElement.style.color = "#baffdc";
+    }
+
+    function resetGame() {
+      score = 0;
+      flowIndex = 0;
+      gameOver = false;
+
+      projectiles.length = 0;
+      particles.length = 0;
+
+      cursor = null;
+      smoothedCursor = null;
+      lastLiveHandAt = 0;
+
+      scoreElement.textContent = "0";
+      finalScoreElement.textContent = "0";
     }
 
     function project3DToScreen(x, y, z) {
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-      const clampedZ = Math.max(0, Math.min(1.2, z));
+
+      const limitedZ = Math.max(0, Math.min(1.2, z));
 
       const scale =
         DEPTH.farScale +
-        (DEPTH.nearScale - DEPTH.farScale) * clampedZ;
+        (DEPTH.nearScale - DEPTH.farScale) *
+          limitedZ;
 
       return {
         x:
@@ -597,33 +652,15 @@
           (x - 0.5) *
             window.innerWidth *
             scale,
+
         y:
           centerY +
           (y - 0.5) *
             window.innerHeight *
             scale,
+
         scale
       };
-    }
-
-    function resetGame() {
-      score = 0;
-      flowIndex = 0;
-
-      projectiles.length = 0;
-      particles.length = 0;
-
-      cursor = null;
-      smoothedCameraCursor = null;
-      lastCameraSeenAt = 0;
-
-      scoreElement.textContent = "0";
-      finalScoreElement.textContent = "0";
-
-      if (gameOverTimeoutId) {
-        window.clearTimeout(gameOverTimeoutId);
-        gameOverTimeoutId = null;
-      }
     }
 
     function chooseNextLane() {
@@ -635,12 +672,19 @@
           : 0;
 
       return {
-        x: Math.max(0.12, Math.min(0.88, base.x + variation)),
-        y: Math.max(0.16, Math.min(0.82, base.y - variation))
+        x: Math.max(
+          0.12,
+          Math.min(0.88, base.x + variation)
+        ),
+
+        y: Math.max(
+          0.16,
+          Math.min(0.82, base.y - variation)
+        )
       };
     }
 
-    function spawnDepthOrb(timestamp) {
+    function spawnProjectile(timestamp) {
       const difficulty = getDifficulty();
       const lane = chooseNextLane();
 
@@ -654,10 +698,11 @@
         x: lane.x,
         y: lane.y,
         z: 0,
-        zSpeed: difficulty.zSpeed * speedMultiplier,
-        radius: PROJECTILE_BASE_RADIUS,
-        hitStartedAt: null,
+        zSpeed:
+          difficulty.zSpeed * speedMultiplier,
+        radius: PROJECTILE_RADIUS,
         spawnedAt: timestamp,
+        hitStartedAt: null,
         screenX: 0,
         screenY: 0
       });
@@ -666,45 +711,51 @@
 
       if (flowIndex === 1) {
         messageElement.textContent =
-          cameraModeActive
-            ? "Depth Flow active. Move your tracked hand away from approaching energy."
-            : "Depth Flow active. Tap Allow Camera Mode to add hand tracking.";
+          "Depth Flow active. The first energy signature is approaching.";
       }
     }
 
     function updateFlowDirector(timestamp) {
-      if (!gameRunning) return;
-      if (projectiles.length > 0) return;
-      if (timestamp < nextProjectileReadyAt) return;
+      if (!running || gameOver) {
+        return;
+      }
 
-      spawnDepthOrb(timestamp);
+      if (projectiles.length > 0) {
+        return;
+      }
+
+      if (timestamp < nextProjectileReadyAt) {
+        return;
+      }
+
+      spawnProjectile(timestamp);
     }
 
-    function resolveVisualPass(timestamp) {
+    function resolvePass(timestamp) {
       const difficulty = getDifficulty();
 
-      const gradualRecoveryReduction = Math.min(
+      const recoveryReduction = Math.min(
         flowIndex * 12,
         210
       );
 
-      nextProjectileReadyAt =
-        timestamp +
-        Math.max(
-          460,
-          difficulty.recoveryMs - gradualRecoveryReduction
-        );
+      const recoveryMs = Math.max(
+        460,
+        difficulty.recoveryMs - recoveryReduction
+      );
+
+      nextProjectileReadyAt = timestamp + recoveryMs;
 
       addParticles(
         window.innerWidth / 2,
         window.innerHeight / 2,
-        "#78f4ff",
+        "#77f5ff",
         12
       );
 
       if (
-        cameraModeActive &&
-        cursor?.trackingState === "locked"
+        cursor &&
+        cursor.trackingState === "locked"
       ) {
         score += 1;
         scoreElement.textContent = score;
@@ -713,12 +764,9 @@
           score % 10 === 0
             ? `Tracked-flow milestone: ${score} clean dodges.`
             : "Clean tracked dodge. Flow continues.";
-      } else if (cameraModeActive) {
-        messageElement.textContent =
-          "Visual pass complete. Reacquire your selected hand when ready.";
       } else {
         messageElement.textContent =
-          "Visual pass complete. Camera Mode remains optional.";
+          "Visual pass complete. Hand tracking remains available.";
       }
     }
 
@@ -736,39 +784,44 @@
 
         if (projectile.z > DEPTH.passZ) {
           projectiles.splice(index, 1);
-          resolveVisualPass(timestamp);
+          resolvePass(timestamp);
         }
       }
     }
 
-    function handleTrackedHit(projectile) {
-      if (!gameRunning) return;
+    function handleHit(projectile) {
+      if (!running || gameOver) {
+        return;
+      }
 
-      gameRunning = false;
+      gameOver = true;
       projectiles.length = 0;
 
       addParticles(
         projectile.screenX,
         projectile.screenY,
-        "#ff6f96",
-        44
+        "#ff6c95",
+        42
       );
 
       finalScoreElement.textContent = score;
 
       messageElement.textContent =
-        "Tracked orb contact. Reset and re-enter the flow.";
+        "Tracked orb contact. Restart when you are ready.";
 
-      gameOverTimeoutId = window.setTimeout(() => {
-        gameOverScreen.classList.remove("hidden");
+      updateStatus();
+
+      window.setTimeout(() => {
+        gameOverPanel.classList.remove("hidden");
       }, 280);
     }
 
-    function updateCameraTracking(timestamp) {
+    function updateHandTracking(timestamp) {
       if (
-        !cameraModeActive ||
+        !trackingReady ||
         !handLandmarker ||
-        video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+        video.readyState <
+          HTMLMediaElement.HAVE_CURRENT_DATA ||
         video.currentTime === lastVideoTime
       ) {
         return;
@@ -778,13 +831,16 @@
 
       try {
         lastHandDetection =
-          handLandmarker.detectForVideo(video, timestamp);
+          handLandmarker.detectForVideo(
+            video,
+            timestamp
+          );
       } catch (error) {
-        console.warn("Tracking frame skipped.", error);
+        console.warn("Hand-tracking frame skipped.", error);
       }
     }
 
-    function findRequestedHandIndex() {
+    function getRequestedHandIndex() {
       if (!lastHandDetection?.landmarks?.length) {
         return -1;
       }
@@ -795,7 +851,8 @@
 
       for (
         let index = 0;
-        index < lastHandDetection.handednesses.length;
+        index <
+        lastHandDetection.handednesses.length;
         index += 1
       ) {
         const handedness =
@@ -811,27 +868,21 @@
       return -1;
     }
 
-    function getCameraCursor(timestamp) {
-      if (!cameraModeActive) {
-        return null;
-      }
-
-      const handIndex = findRequestedHandIndex();
+    function getTrackedCursor(timestamp) {
+      const handIndex = getRequestedHandIndex();
 
       if (handIndex === -1) {
-        updateTrackingLabel(false);
-
-        const staleFor =
-          lastCameraSeenAt
-            ? timestamp - lastCameraSeenAt
+        const missingFor =
+          lastLiveHandAt
+            ? timestamp - lastLiveHandAt
             : Infinity;
 
         if (
-          smoothedCameraCursor &&
-          staleFor < 450
+          smoothedCursor &&
+          missingFor < 450
         ) {
           return {
-            ...smoothedCameraCursor,
+            ...smoothedCursor,
             trackingState: "grace"
           };
         }
@@ -844,11 +895,7 @@
           INDEX_FINGER_TIP
         ];
 
-      const handData =
-        lastHandDetection.handednesses[handIndex]?.[0];
-
       if (!fingertip) {
-        updateTrackingLabel(false);
         return null;
       }
 
@@ -860,78 +907,38 @@
 
       const smoothing = 0.32;
 
-      if (!smoothedCameraCursor) {
-        smoothedCameraCursor = raw;
+      if (!smoothedCursor) {
+        smoothedCursor = raw;
       } else {
-        smoothedCameraCursor = {
+        smoothedCursor = {
           ...raw,
+
           x:
-            smoothedCameraCursor.x +
-            (raw.x - smoothedCameraCursor.x) * smoothing,
+            smoothedCursor.x +
+            (raw.x - smoothedCursor.x) *
+              smoothing,
+
           y:
-            smoothedCameraCursor.y +
-            (raw.y - smoothedCameraCursor.y) * smoothing
+            smoothedCursor.y +
+            (raw.y - smoothedCursor.y) *
+              smoothing
         };
       }
 
-      lastCameraSeenAt = timestamp;
-
-      updateTrackingLabel(
-        true,
-        handData?.categoryName ?? selectedHand,
-        handData?.score ?? 0
-      );
+      lastLiveHandAt = timestamp;
 
       return {
-        ...smoothedCameraCursor,
+        ...smoothedCursor,
         trackingState: "locked"
       };
     }
 
-    function updateTrackingLabel(
-      locked,
-      handName = "",
-      confidence = 0
-    ) {
-      if (!cameraModeActive) {
-        trackingElement.textContent =
-          "Tap Allow Camera Mode";
-        trackingElement.style.color = "#c8dded";
-        return;
-      }
-
-      if (!trackingInitialized) {
-        trackingElement.textContent =
-          "Camera initializing…";
-        trackingElement.style.color = "#c8dded";
-        return;
-      }
-
-      if (!locked) {
-        const handText =
-          selectedHand === "Either"
-            ? "a hand"
-            : `your ${selectedHand.toLowerCase()} hand`;
-
-        trackingElement.textContent =
-          `Show ${handText}`;
-
-        trackingElement.style.color = "#ffcf91";
-        return;
-      }
-
-      trackingElement.textContent =
-        `${Math.round(confidence * 100)}% ${handName.toLowerCase()} lock`;
-
-      trackingElement.style.color = "#baffdc";
-    }
-
-    function checkTrackedCollisions(player, timestamp) {
+    function checkTrackedCollisions(timestamp) {
       if (
-        !gameRunning ||
-        !cameraModeActive ||
-        !player ||
-        player.trackingState !== "locked"
+        !running ||
+        gameOver ||
+        !cursor ||
+        cursor.trackingState !== "locked"
       ) {
         return;
       }
@@ -939,11 +946,11 @@
       const difficulty = getDifficulty();
 
       for (const projectile of projectiles) {
-        const isAtForeground =
+        const inForeground =
           projectile.z >= DEPTH.interactionStart &&
           projectile.z <= DEPTH.interactionEnd;
 
-        if (!isAtForeground) {
+        if (!inForeground) {
           projectile.hitStartedAt = null;
           continue;
         }
@@ -961,13 +968,13 @@
         projectile.screenY = projected.y;
 
         const distance = Math.hypot(
-          player.x - projected.x,
-          player.y - projected.y
+          cursor.x - projected.x,
+          cursor.y - projected.y
         );
 
         const overlapping =
           distance <
-          player.radius + projectileRadius;
+          cursor.radius + projectileRadius;
 
         if (!overlapping) {
           projectile.hitStartedAt = null;
@@ -980,14 +987,18 @@
           timestamp - projectile.hitStartedAt >=
           difficulty.collisionGraceMs
         ) {
-          handleTrackedHit(projectile);
+          handleHit(projectile);
           return;
         }
       }
     }
 
     function addParticles(x, y, color, amount) {
-      for (let index = 0; index < amount; index += 1) {
+      for (
+        let index = 0;
+        index < amount;
+        index += 1
+      ) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 70 + Math.random() * 240;
 
@@ -996,9 +1007,9 @@
           y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          size: 2 + Math.random() * 4,
           life: 420 + Math.random() * 350,
           maxLife: 770,
+          size: 2 + Math.random() * 4,
           color
         });
       }
@@ -1016,8 +1027,10 @@
 
         particle.x += particle.vx * dt;
         particle.y += particle.vy * dt;
+
         particle.vx *= 0.982;
         particle.vy *= 0.982;
+
         particle.life -= deltaMs;
 
         if (particle.life <= 0) {
@@ -1029,7 +1042,11 @@
     function drawDepthArena(timestamp) {
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-      const maxRadius = Math.hypot(centerX, centerY);
+
+      const maxRadius = Math.hypot(
+        centerX,
+        centerY
+      );
 
       const background = ctx.createRadialGradient(
         centerX,
@@ -1040,12 +1057,13 @@
         maxRadius
       );
 
-      background.addColorStop(0, "#1b4e78");
-      background.addColorStop(0.26, "#0b2449");
-      background.addColorStop(0.64, "#061329");
+      background.addColorStop(0, "#1c527b");
+      background.addColorStop(0.27, "#0c284f");
+      background.addColorStop(0.64, "#06142b");
       background.addColorStop(1, "#020713");
 
       ctx.fillStyle = background;
+
       ctx.fillRect(
         0,
         0,
@@ -1070,6 +1088,7 @@
         ctx.lineWidth = 1 + progress * 1.6;
 
         ctx.beginPath();
+
         ctx.ellipse(
           centerX,
           centerY,
@@ -1079,11 +1098,13 @@
           0,
           Math.PI * 2
         );
+
         ctx.stroke();
       }
 
       for (let ray = 0; ray < 16; ray += 1) {
-        const angle = (Math.PI * 2 * ray) / 16;
+        const angle =
+          (Math.PI * 2 * ray) / 16;
 
         ctx.strokeStyle =
           "rgba(113, 239, 255, 0.105)";
@@ -1092,10 +1113,12 @@
 
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
+
         ctx.lineTo(
           centerX + Math.cos(angle) * maxRadius,
           centerY + Math.sin(angle) * maxRadius
         );
+
         ctx.stroke();
       }
 
@@ -1105,12 +1128,15 @@
         1,
         centerX,
         centerY,
-        Math.min(window.innerWidth, window.innerHeight) * 0.25
+        Math.min(
+          window.innerWidth,
+          window.innerHeight
+        ) * 0.25
       );
 
       horizonGlow.addColorStop(
         0,
-        "rgba(160, 251, 255, 0.35)"
+        "rgba(160, 251, 255, 0.34)"
       );
 
       horizonGlow.addColorStop(
@@ -1119,20 +1145,25 @@
       );
 
       ctx.fillStyle = horizonGlow;
+
       ctx.beginPath();
+
       ctx.arc(
         centerX,
         centerY,
-        Math.min(window.innerWidth, window.innerHeight) * 0.25,
+        Math.min(
+          window.innerWidth,
+          window.innerHeight
+        ) * 0.25,
         0,
         Math.PI * 2
       );
-      ctx.fill();
 
+      ctx.fill();
       ctx.restore();
     }
 
-    function drawDepthProjectile(projectile, timestamp) {
+    function drawProjectile(projectile, timestamp) {
       const projected = project3DToScreen(
         projectile.x,
         projectile.y,
@@ -1148,7 +1179,9 @@
         projectile.radius * projected.scale;
 
       const pulse =
-        Math.sin(timestamp / 145 + projectile.spawnedAt) *
+        Math.sin(
+          timestamp / 145 + projectile.spawnedAt
+        ) *
         radius *
         0.08;
 
@@ -1182,6 +1215,8 @@
         1,
         "rgba(255, 174, 28, 0)"
       );
+
+      ctx.save();
 
       ctx.strokeStyle = trail;
       ctx.lineWidth = Math.max(2, radius * 0.8);
@@ -1222,7 +1257,9 @@
       );
 
       ctx.fillStyle = glow;
+
       ctx.beginPath();
+
       ctx.arc(
         projected.x,
         projected.y,
@@ -1230,12 +1267,14 @@
         0,
         Math.PI * 2
       );
+
       ctx.fill();
 
       ctx.fillStyle =
         `rgba(255, 224, 88, ${alpha})`;
 
       ctx.beginPath();
+
       ctx.arc(
         projected.x,
         projected.y,
@@ -1243,6 +1282,7 @@
         0,
         Math.PI * 2
       );
+
       ctx.fill();
 
       ctx.strokeStyle =
@@ -1256,6 +1296,7 @@
       );
 
       ctx.beginPath();
+
       ctx.arc(
         projected.x,
         projected.y,
@@ -1263,6 +1304,7 @@
         0,
         Math.PI * 2
       );
+
       ctx.stroke();
 
       if (
@@ -1275,6 +1317,7 @@
         ctx.lineWidth = 2;
 
         ctx.beginPath();
+
         ctx.arc(
           projected.x,
           projected.y,
@@ -1282,24 +1325,31 @@
           0,
           Math.PI * 2
         );
+
         ctx.stroke();
       }
+
+      ctx.restore();
     }
 
-    function drawTrackedCursor(player, timestamp) {
-      const grace =
-        player.trackingState === "grace";
+    function drawTrackedCursor(timestamp) {
+      if (!cursor) {
+        return;
+      }
+
+      const isGrace =
+        cursor.trackingState === "grace";
 
       const pulse =
         Math.sin(timestamp / 150) * 3;
 
       const glow = ctx.createRadialGradient(
-        player.x,
-        player.y,
+        cursor.x,
+        cursor.y,
         1,
-        player.x,
-        player.y,
-        player.radius * 2.5
+        cursor.x,
+        cursor.y,
+        cursor.radius * 2.5
       );
 
       glow.addColorStop(
@@ -1314,7 +1364,7 @@
 
       glow.addColorStop(
         0.55,
-        grace
+        isGrace
           ? "rgba(255, 204, 106, 0.54)"
           : "rgba(68, 238, 255, 0.66)"
       );
@@ -1324,44 +1374,54 @@
         "rgba(55, 228, 255, 0)"
       );
 
+      ctx.save();
+
       ctx.fillStyle = glow;
+
       ctx.beginPath();
+
       ctx.arc(
-        player.x,
-        player.y,
-        player.radius * 2.45 + pulse,
+        cursor.x,
+        cursor.y,
+        cursor.radius * 2.45 + pulse,
         0,
         Math.PI * 2
       );
+
       ctx.fill();
 
-      ctx.fillStyle =
-        grace ? "#ffe3a0" : "#baffff";
+      ctx.fillStyle = isGrace
+        ? "#ffe3a0"
+        : "#baffff";
 
       ctx.beginPath();
+
       ctx.arc(
-        player.x,
-        player.y,
-        player.radius,
+        cursor.x,
+        cursor.y,
+        cursor.radius,
         0,
         Math.PI * 2
       );
+
       ctx.fill();
 
       ctx.strokeStyle = "#f0ffff";
       ctx.lineWidth = 2;
 
       ctx.beginPath();
+
       ctx.arc(
-        player.x,
-        player.y,
-        player.radius + 5,
+        cursor.x,
+        cursor.y,
+        cursor.radius + 5,
         0,
         Math.PI * 2
       );
+
       ctx.stroke();
 
-      ctx.strokeStyle = grace
+      ctx.strokeStyle = isGrace
         ? "rgba(255, 207, 120, 0.8)"
         : "rgba(82, 240, 255, 0.85)";
 
@@ -1369,16 +1429,19 @@
       ctx.setLineDash([5, 6]);
 
       ctx.beginPath();
+
       ctx.arc(
-        player.x,
-        player.y,
-        player.radius + 12 + pulse,
+        cursor.x,
+        cursor.y,
+        cursor.radius + 12 + pulse,
         0,
         Math.PI * 2
       );
+
       ctx.stroke();
 
       ctx.setLineDash([]);
+      ctx.restore();
     }
 
     function drawParticles() {
@@ -1393,6 +1456,7 @@
         ctx.fillStyle = particle.color;
 
         ctx.beginPath();
+
         ctx.arc(
           particle.x,
           particle.y,
@@ -1400,13 +1464,13 @@
           0,
           Math.PI * 2
         );
-        ctx.fill();
 
+        ctx.fill();
         ctx.restore();
       }
     }
 
-    function render(timestamp, deltaMs) {
+    function draw(timestamp) {
       ctx.clearRect(
         0,
         0,
@@ -1417,18 +1481,18 @@
       drawDepthArena(timestamp);
 
       for (const projectile of projectiles) {
-        drawDepthProjectile(projectile, timestamp);
+        drawProjectile(projectile, timestamp);
       }
 
-      if (cursor) {
-        drawTrackedCursor(cursor, timestamp);
-      }
-
-      updateParticles(deltaMs);
+      drawTrackedCursor(timestamp);
       drawParticles();
     }
 
-    function gameLoop(timestamp) {
+    function loop(timestamp) {
+      if (!running) {
+        return;
+      }
+
       const deltaMs = Math.min(
         timestamp - lastFrameTimestamp || 16,
         50
@@ -1436,42 +1500,43 @@
 
       lastFrameTimestamp = timestamp;
 
-      if (gameStarted) {
-        if (cameraModeActive) {
-          updateCameraTracking(timestamp);
-          cursor = getCameraCursor(timestamp);
-        } else {
-          cursor = null;
-          updateTrackingLabel(false);
-        }
+      /*
+        Tracking runs only when ready. A missing model/frame does not
+        interrupt projectile flow, drawing, timers, or arena motion.
+      */
+      updateHandTracking(timestamp);
+      cursor = getTrackedCursor(timestamp);
 
-        if (gameRunning) {
-          updateFlowDirector(timestamp);
-          updateProjectiles(deltaMs, timestamp);
+      updateFlowDirector(timestamp);
+      updateProjectiles(deltaMs, timestamp);
 
-          if (cameraModeActive) {
-            checkTrackedCollisions(cursor, timestamp);
-          }
-        }
-      }
+      /*
+        Only a confirmed, live hand lock can cause a collision.
+        Tracking loss cannot damage the player or stop the game.
+      */
+      checkTrackedCollisions(timestamp);
 
-      render(timestamp, deltaMs);
+      updateParticles(deltaMs);
+      draw(timestamp);
+      updateStatus();
 
-      animationFrameId =
-        requestAnimationFrame(gameLoop);
+      animationFrameId = requestAnimationFrame(loop);
     }
 
-    async function createHandLandmarker(delegate) {
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-      );
+    async function createHandTracker(delegate) {
+      const vision =
+        await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+        );
 
       return HandLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath:
             "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+
           delegate
         },
+
         runningMode: "VIDEO",
         numHands: 2,
         minHandDetectionConfidence: 0.58,
@@ -1480,211 +1545,264 @@
       });
     }
 
-    async function startCamera() {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Camera API is unavailable.");
-      }
-
-      const stream =
-        await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            facingMode: "user",
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            frameRate: { ideal: 30, max: 60 }
-          }
-        });
-
-      video.srcObject = stream;
-
-      await new Promise((resolve) => {
-        video.onloadedmetadata = resolve;
-      });
-
-      await video.play();
-
-      video.style.display = "block";
-    }
-
-    async function enableCameraMode() {
-      if (
-        cameraModeActive ||
-        cameraConnectionInProgress
-      ) {
+    /*
+      This intentionally runs after the game loop begins. Do not await
+      this function from allowCamera(), because model download/startup
+      must never hold up the playable arena.
+    */
+    async function loadTrackingInBackground() {
+      if (trackingLoading || trackingReady) {
         return;
       }
 
-      cameraConnectionInProgress = true;
-
-      setCameraButtons("Opening Camera…", true);
-
-      messageElement.textContent =
-        "Requesting camera permission for hand tracking…";
+      trackingLoading = true;
+      updateStatus();
 
       try {
         try {
           handLandmarker =
-            await createHandLandmarker("GPU");
+            await createHandTracker("GPU");
         } catch (gpuError) {
           console.warn(
-            "GPU tracking unavailable; trying CPU.",
+            "GPU hand tracking unavailable; trying CPU.",
             gpuError
           );
 
           handLandmarker?.close?.();
 
           handLandmarker =
-            await createHandLandmarker("CPU");
+            await createHandTracker("CPU");
         }
 
-        await startCamera();
-
-        trackingInitialized = true;
-        cameraModeActive = true;
-
-        setCameraButtons("Camera Mode Active", true);
+        trackingReady = true;
 
         messageElement.textContent =
-          "Camera Mode active. Show your selected hand whenever you are ready.";
+          "Hand tracking ready. Move your selected hand to dodge.";
+
       } catch (error) {
-        console.warn("Camera Mode could not start.", error);
+        console.warn(
+          "Hand tracking could not load.",
+          error
+        );
 
         handLandmarker?.close?.();
         handLandmarker = null;
 
-        trackingInitialized = false;
-        cameraModeActive = false;
-
-        setCameraButtons(
-          "Try Allowing Camera Again",
-          false
-        );
+        trackingReady = false;
 
         messageElement.textContent =
-          "Camera access was not enabled. Depth Flow continues. Allow access in your browser and use HTTPS or localhost to try again.";
+          "Depth Flow continues, but hand tracking could not load.";
+
       } finally {
-        cameraConnectionInProgress = false;
+        trackingLoading = false;
+        updateStatus();
       }
     }
 
-    function beginFlow() {
-      selectedHand = handSelect.value;
-      selectedDifficulty = difficultySelect.value;
+    function showCameraError(error) {
+      console.error(error);
 
-      startButton.disabled = true;
-      startButton.textContent = "Launching…";
+      allowCameraButton.disabled = false;
+      allowCameraButton.textContent =
+        "Try Camera Again";
 
-      resetGame();
+      if (!window.isSecureContext) {
+        permissionMessage.textContent =
+          "Camera access requires HTTPS. Open your GitHub Pages website instead of a downloaded or local file.";
 
-      gameStarted = true;
-      gameRunning = true;
+      } else if (error?.name === "NotAllowedError") {
+        permissionMessage.textContent =
+          "Camera permission was denied. Allow it in your browser site settings, then try again.";
 
-      const now = performance.now();
+      } else if (error?.name === "NotFoundError") {
+        permissionMessage.textContent =
+          "No usable camera was found on this device.";
 
-      nextProjectileReadyAt = now + 520;
+      } else if (error?.name === "NotReadableError") {
+        permissionMessage.textContent =
+          "Your camera is being used by another app or browser tab. Close it and try again.";
 
-      startScreen.classList.add("hidden");
-      gameOverScreen.classList.add("hidden");
+      } else {
+        permissionMessage.textContent =
+          `Camera error: ${
+            error?.message || "Unknown error"
+          }`;
+      }
 
-      messageElement.textContent =
-        cameraModeActive
-          ? "Depth Flow active. Hand tracking is ready."
-          : "Depth Flow active. Tap Allow Camera Mode whenever you want tracking.";
+      statusElement.textContent = "Camera unavailable.";
+      statusElement.style.color = "#ffb2be";
+    }
 
-      window.setTimeout(() => {
-        startButton.disabled = false;
-        startButton.textContent = "Start Flow";
-      }, 350);
+    /*
+      Mirrors the working Laser Dodge startup behavior:
+      1. Request the camera directly from the button event.
+      2. Await successful video playback.
+      3. Hide the permission panel.
+      4. Start the animation/game loop immediately.
+      5. Load MediaPipe afterward, without awaiting it.
+    */
+    async function allowCamera() {
+      try {
+        allowCameraButton.disabled = true;
+
+        allowCameraButton.textContent =
+          "Requesting Camera…";
+
+        stream =
+          await navigator.mediaDevices.getUserMedia({
+            audio: false,
+
+            video: {
+              facingMode: "user",
+
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+
+              frameRate: {
+                ideal: 30,
+                max: 60
+              }
+            }
+          });
+
+        video.srcObject = stream;
+
+        await new Promise((resolve) => {
+          video.onloadedmetadata = resolve;
+        });
+
+        await video.play();
+
+        selectedHand = handSelect.value;
+        selectedDifficulty = difficultySelect.value;
+
+        resetGame();
+
+        permissionPanel.classList.add("hidden");
+
+        running = true;
+        gameOver = false;
+
+        const now = performance.now();
+
+        nextProjectileReadyAt = now + 520;
+        lastFrameTimestamp = now;
+
+        statusElement.textContent =
+          "Depth Flow active — loading hand tracking…";
+
+        statusElement.style.color = "#cfe4f3";
+
+        messageElement.textContent =
+          "Depth Flow active. Energy is approaching.";
+
+        animationFrameId =
+          requestAnimationFrame(loop);
+
+        /*
+          Intentionally NOT awaited:
+          projectile flow has already started.
+        */
+        loadTrackingInBackground();
+
+      } catch (error) {
+        showCameraError(error);
+      }
     }
 
     function restartFlow() {
       resetGame();
 
-      gameOverScreen.classList.add("hidden");
+      gameOverPanel.classList.add("hidden");
 
-      gameStarted = true;
-      gameRunning = true;
+      gameOver = false;
+      running = true;
 
       const now = performance.now();
 
       nextProjectileReadyAt = now + 620;
+      lastFrameTimestamp = now;
 
       messageElement.textContent =
-        cameraModeActive
-          ? "Flow restarted. Keep your tracked hand clear."
-          : "Flow restarted. Camera Mode remains available.";
+        trackingReady
+          ? "Flow restarted. Keep your selected hand clear."
+          : "Flow restarted. Hand tracking is still loading.";
+
+      if (!animationFrameId) {
+        animationFrameId =
+          requestAnimationFrame(loop);
+      }
     }
 
-    function returnToMenu() {
-      gameRunning = false;
-      gameStarted = false;
+    function changeSettings() {
+      running = false;
+      gameOver = false;
 
       projectiles.length = 0;
       particles.length = 0;
       cursor = null;
 
-      gameOverScreen.classList.add("hidden");
-      startScreen.classList.remove("hidden");
+      gameOverPanel.classList.add("hidden");
+      permissionPanel.classList.remove("hidden");
+
+      permissionMessage.textContent =
+        "Choose your tracked hand and movement demand, then start the next Depth Flow run.";
+
+      allowCameraButton.textContent =
+        "Start New Flow";
+
+      allowCameraButton.disabled = false;
 
       messageElement.textContent =
-        cameraModeActive
-          ? "Camera Mode remains active. Press Start Flow when ready."
-          : "Start Flow for the visual arena. Camera Mode is optional.";
+        "Settings ready. Start a new Depth Flow run.";
     }
 
-    startButton.addEventListener("click", beginFlow);
-    cameraButton.addEventListener("click", enableCameraMode);
-    cameraButtonGameOver.addEventListener(
+    allowCameraButton.addEventListener(
       "click",
-      enableCameraMode
+      allowCamera
     );
-    restartButton.addEventListener("click", restartFlow);
-    menuButton.addEventListener("click", returnToMenu);
+
+    restartButton.addEventListener(
+      "click",
+      restartFlow
+    );
+
+    changeSettingsButton.addEventListener(
+      "click",
+      changeSettings
+    );
 
     handSelect.addEventListener("change", () => {
       selectedHand = handSelect.value;
-      smoothedCameraCursor = null;
-      lastCameraSeenAt = 0;
+      smoothedCursor = null;
+      lastLiveHandAt = 0;
     });
 
     difficultySelect.addEventListener("change", () => {
       selectedDifficulty = difficultySelect.value;
     });
 
-    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener(
+      "resize",
+      resizeCanvas
+    );
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden && gameRunning) {
-        gameRunning = false;
-
-        finalScoreElement.textContent = score;
-
-        messageElement.textContent =
-          "Flow paused while the page was not visible.";
-
-        gameOverScreen.classList.remove("hidden");
-      }
-    });
-
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener("pagehide", () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
 
-      handLandmarker?.close?.();
-
-      const stream = video.srcObject;
-
-      if (stream instanceof MediaStream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
       }
+
+      handLandmarker?.close?.();
     });
 
     resizeCanvas();
-
-    animationFrameId =
-      requestAnimationFrame(gameLoop);
+    updateStatus();
   </script>
 </body>
 </html>
